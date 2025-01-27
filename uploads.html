@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ar">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رفع منتج جديد</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body dir="rtl" class="container mt-5">
+    <h1 class="text-center">رفع منتج جديد</h1>
+    <form id="productForm" enctype="multipart/form-data" class="mt-4">
+        <div class="form-group">
+            <label for="productName">اسم المنتج</label>
+            <input type="text" id="productName" name="productName" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="productId">رقم تعريف المنتج</label>
+            <input type="text" id="productId" name="productId" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="productPrice">ثمن المنتج</label>
+            <input type="number" id="productPrice" name="productPrice" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="productImage">صورة المنتج</label>
+            <input type="file" id="productImage" name="productImage" class="form-control-file" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">رفع المنتج</button>
+    </form>
+
+    <script>
+        const form = document.getElementById('productForm');
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+
+            fetch('http://localhost:3000/upload', { // رابط API رفع المنتج
+                method: 'POST',
+                body: formData,
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('تم رفع المنتج بنجاح!');
+                        form.reset();
+                    } else {
+                        alert('حدث خطأ أثناء رفع المنتج.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('فشل الاتصال بالخادم.');
+                });
+        });
+    </script>
+</body>
+
+</html>

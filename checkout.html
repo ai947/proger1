@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ar">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تأكيد الطلب </title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- FontAwesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=close" />
+    <style>
+        body {
+            padding: 20px;
+        }
+
+        .product-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            text-align: center;
+
+
+        }
+
+        .product-item img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            white-space: 20px;
+        }
+
+        .quantity-controls button {
+            margin: 0 5px;
+        }
+
+        .info-box {
+            background-color: #f0f8ff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .remove-button {
+            margin-left: 10px;
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .social-icons a {
+            margin: 0 10px;
+            font-size: 30px;
+            text-decoration: none;
+
+        }
+        .button {
+    float: right; /* تحريك الزر إلى الجهة اليمنى */
+    background: none; /* إزالة الخلفية */
+    border: none; /* إزالة الحدود */
+    cursor: pointer; /* تغيير المؤشر عند المرور فوق الزر */
+}
+
+.button i {
+    font-size: 30px; /* حجم الأيقونة */
+    color: #000; /* لون الأيقونة */
+}
+
+
+        .social-icons p {
+            margin: 0 10px;
+            font-size: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            text-align: center;
+
+        }
+
+        .whatsapp {
+            color: #25d366;
+        }
+
+        .gmail {
+            color: #D44638;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        @media(max-width: 400px) {
+
+
+
+            .product-item {
+                display: block;
+            }
+
+
+        }
+    </style>
+</head>
+
+<body dir="rtl">
+
+    <div class="container mt-5">
+
+        <h3 class="text-center mb-4">إدخال بيانات الدفع</h3>
+
+        <a href="index.html">
+            <button type="button" class="button">
+                <i class="fas fa-times"></i>
+            </button>
+        </a>
+
+        <form id="checkout-form" onsubmit="return false;">
+            <div class="form-group">
+                <label for="name">الاسم الكامل</label>
+                <input type="text" class="form-control" id="name" required>
+                <div class="error-message" id="name-error">الرجاء إدخال الاسم الكامل</div>
+            </div>
+            <div class="form-group">
+                <label for="city">المدينة</label>
+                <input type="text" class="form-control" id="city" required>
+                <div class="error-message" id="city-error">الرجاء إدخال المدينة</div>
+            </div>
+            <div class="form-group">
+                <label for="phone">رقم الهاتف</label>
+                <input type="tel" class="form-control" id="phone" required>
+                <div class="error-message" id="phone-error">الرجاء إدخال رقم الهاتف</div>
+            </div>
+
+            <h5>مكونات السلة:</h5>
+            <div class="m3" id="cart-summary">
+                <!-- سيتم عرض مكونات السلة هنا -->
+            </div>
+            <h5 class="mt-3">المجموع: <span id="total-price">0DH</span></h5>
+
+            <h4 class="text-center mt-4">تأكيد الطلب عبر</h4>
+
+            <div class="social-icons">
+                <a href="javascript:void(0);" class="whatsapp" onclick="sendOrder('whatsapp')">
+                    <i class="fab fa-whatsapp"></i>
+                    <P>whatsapp</P>
+                </a>
+
+                <a href="javascript:void(0);" class="gmail" onclick="sendOrder('gmail')">
+                    <i class="fas fa-envelope"></i>
+                    <p>gmail</p>
+                </a>
+            </div>
+        </form>
+    </div>
+    </div>
+
+    <script>
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let total = 0;
+
+        function renderCartSummary() {
+            const cartSummaryContainer = document.getElementById('cart-summary');
+            cartSummaryContainer.innerHTML = '';
+
+            total = 0;
+
+            cart.forEach((item, index) => {
+                cartSummaryContainer.innerHTML += `
+                    <div class="product-item">
+                        <img src="${item.image}" alt="${item.name}">
+                        <span>${item.name}</span>
+                        <div class="quantity-controls">
+                            <button class="btn btn-sm btn-secondary" onclick="updateQuantity(${index}, -1)">-</button>
+                            <span>${item.quantity}</span>
+                            <button class="btn btn-sm btn-secondary" onclick="updateQuantity(${index}, 1)">+</button>
+                            <button class="btn btn-sm btn-danger remove-button" onclick="removeFromCart(${index})">إزالة</button>
+                        </div>
+                        <span>${item.price * item.quantity}DH</span>
+                    </div>
+                `;
+                total += item.price * item.quantity;
+            });
+
+            document.getElementById('total-price').innerText = total + 'DH';
+        }
+
+        function updateQuantity(index, change) {
+            if (cart[index].quantity + change > 0) {
+                cart[index].quantity += change;
+                localStorage.setItem('cart', JSON.stringify(cart));
+                renderCartSummary();
+            }
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            renderCartSummary();
+        }
+
+        function validateForm() {
+            let isValid = true;
+
+            const name = document.getElementById('name').value;
+            const city = document.getElementById('city').value;
+            const phone = document.getElementById('phone').value;
+
+            if (name === '') {
+                document.getElementById('name-error').style.display = 'block';
+                isValid = false;
+            } else {
+                document.getElementById('name-error').style.display = 'none';
+            }
+
+            if (city === '') {
+                document.getElementById('city-error').style.display = 'block';
+                isValid = false;
+            } else {
+                document.getElementById('city-error').style.display = 'none';
+            }
+
+            if (phone === '') {
+                document.getElementById('phone-error').style.display = 'block';
+                isValid = false;
+            } else {
+                document.getElementById('phone-error').style.display = 'none';
+            }
+
+            return isValid;
+        }
+
+        function sendOrder(platform) {
+            if (!validateForm()) {
+                return;
+            }
+
+            // التحقق من وجود منتجات في السلة
+            if (cart.length === 0) {
+                alert('السلة فارغة. لا يمكن إرسال الطلب.');
+                return;
+            }
+
+            const name = document.getElementById('name').value;
+            const city = document.getElementById('city').value;
+            const phone = document.getElementById('phone').value;
+
+            let cartMessage = cart.map(item => `- ${item.name} (${item.quantity} x ${item.price}DH)`).join('\n');
+            let totalMessage = `المجموع: ${total}DH`;
+
+            let message = `الاسم: ${name}\nالمدينة: ${city}\nالهاتف: ${phone}\n\nالمنتجات المطلوبة:\n${cartMessage}\n\n${totalMessage}`;
+            let encodedMessage = encodeURIComponent(message);
+
+            let url = '';
+            switch (platform) {
+                case 'whatsapp':
+                    url = `https://wa.me/+212710081038?text=${encodedMessage}`;
+                    break;
+                case 'gmail':
+                    // تعديل رابط الـ mailto
+                    url = `mailto:ahnatsaid1@gmail.com?subject=${encodeURIComponent('طلب شراء')}&body=${encodedMessage}`;
+                    break;
+                default:
+                    alert('منصة غير معروفة!');
+                    return;
+            }
+
+            if (platform === 'whatsapp' || platform === 'gmail') {
+                window.open(url, '_blank');
+            }
+
+            localStorage.removeItem('cart');
+            cart = [];
+
+            setTimeout(() => {
+                alert('تم إرسال الطلب بنجاح!');
+                window.location.href = 'index.html';
+            }, 1000);
+        }
+
+        renderCartSummary();
+    </script>
+</body>
+
+</html>
